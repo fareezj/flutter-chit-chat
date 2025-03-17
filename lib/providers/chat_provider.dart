@@ -37,6 +37,11 @@ class ChatProvider with ChangeNotifier {
 
   Future<void> sendMessage(String text, String senderId) async {
     if (_currentChatRoomId == null) return;
+    if (text.isEmpty || senderId.isEmpty) {
+      _errorMessage = 'Message cannot be empty';
+      notifyListeners();
+      return;
+    }
     try {
       await _firestore
           .collection('chatRooms')

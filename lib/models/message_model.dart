@@ -25,10 +25,10 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
-      id: json['id'],
-      text: json['text'],
-      senderId: json['senderId'],
-      timestamp: (json['timestamp'] as Timestamp).toDate(),
+      id: json['id'] ?? '',
+      text: (json['text'] ?? '') as String,
+      senderId: (json['senderId'] ?? 'unknown') as String,
+      timestamp: (json['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 }
