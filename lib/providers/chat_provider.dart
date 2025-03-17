@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/message_model.dart';
+import 'package:flutter/widgets.dart';
 
 class ChatProvider with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -13,42 +14,43 @@ class ChatProvider with ChangeNotifier {
   List<Message> get messages => _messages;
   String? get errorMessage => _errorMessage;
 
-  void setChatRoom(String chatRoomId, String otherUserId) {
-    try {
-      _currentChatRoomId = chatRoomId;
-      _loadMessages();
-      _errorMessage = null;
-    } catch (e) {
-      _errorMessage = 'Failed to initialize chat: ${e.toString()}';
-    }
-    notifyListeners();
+  void setChatRoom(String chatRoomId) {
+    _currentChatRoomId = chatRoomId;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadMessages().then((_) => notifyListeners());
+    });
   }
 
-  void _loadMessages() {
-    _firestore
-        .collection('chatRooms')
-        .doc(_currentChatRoomId)
-        .collection('messages')
-        .orderBy('timestamp', descending: true)
-        .snapshots()
-        .listen((querySnapshot) {
-      _messages = querySnapshot.docs
+  Future<void> _loadMessages() async {
+    try {
+      final snapshot = await _firestore
+          .collection('chatRooms')
+          .doc(_currentChatRoomId)
+          .collection('messages')
+          .orderBy('timestamp', descending: true)
+          .get();
+      _messages = snapshot.docs
           .map((doc) => Message.fromJson(doc.data()))
           .toList();
-      notifyListeners();
-    });
+    } catch (e) {
+      _errorMessage = 'Failed to load messages: ${e.toString()}';
+    }
   }
 
   Future<void> sendMessage(String text, String senderId) async {
     if (_currentChatRoomId == null) return;
-    await _firestore
-        .collection('chatRooms')
-        .doc(_currentChatRoomId)
-        .collection('messages')
-        .add({
-      'text': text,
-      'senderId': senderId,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+    try {
+      await _firestore
+          .collection('chatRooms')
+          .doc(_currentChatRoomId)
+          .collection('messages')
+          .add({
+        'text': text,
+        'senderId': senderId,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      _errorMessage = 'Failed to send message: ${e.toString()}';
+    }
   }
 }

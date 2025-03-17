@@ -18,8 +18,9 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<ChatProvider>(context, listen: false);
-    provider.setChatRoom(chatRoomId, otherUserId);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ChatProvider>().setChatRoom(chatRoomId);
+    });
     
     return Scaffold(
       appBar: AppBar(title: Text(user.name)),
