@@ -1,13 +1,29 @@
 import 'package:chit_chat/login_page.dart';
+import 'package:chit_chat/providers/chat_provider.dart';
 import 'package:chit_chat/register_page.dart';
 import 'package:chit_chat/route_generator.dart';
+import 'package:chit_chat/services/chat_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider(create: (_) => ChatService()),
+        ChangeNotifierProvider(
+          create: (context) => ChatProvider(
+            context.read<ChatService>(),
+          ),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

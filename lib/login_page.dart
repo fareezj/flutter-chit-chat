@@ -21,13 +21,13 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
     try {
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
       // Navigate to home page on success
-      Navigator.pushReplacementNamed(context, RouteGenerator.homePage);
+      Navigator.pushReplacementNamed(context, RouteGenerator.chatPage);
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')), 
+      appBar: AppBar(title: Text('Login')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -70,11 +70,11 @@ class _LoginPageState extends State<LoginPage> {
               ] else ...[
                 ElevatedButton(
                   onPressed: _login,
-                  child: Text('Login'),
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                     textStyle: TextStyle(fontSize: 16),
                   ),
+                  child: Text('Login'),
                 ),
               ],
               if (_errorMessage != null) ...[
