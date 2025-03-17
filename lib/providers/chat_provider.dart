@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/message_model.dart';
@@ -8,6 +10,7 @@ class ChatProvider with ChangeNotifier {
   List<Message> _messages = [];
   String? _currentChatRoomId;
   String? _errorMessage;
+  StreamSubscription<QuerySnapshot>? _messageSubscription;
 
   ChatProvider();
 
@@ -15,26 +18,21 @@ class ChatProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   void setChatRoom(String chatRoomId) {
+    _messageSubscription?.cancel();
     _currentChatRoomId = chatRoomId;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadMessages().then((_) => notifyListeners());
-    });
-  }
-
-  Future<void> _loadMessages() async {
-    try {
-      final snapshot = await _firestore
+      _messageSubscription = _firestore
           .collection('chatRooms')
-          .doc(_currentChatRoomId)
+          .doc(chatRoomId)
           .collection('messages')
           .orderBy('timestamp', descending: true)
-          .get();
-      _messages = snapshot.docs
-          .map((doc) => Message.fromJson(doc.data()))
-          .toList();
-    } catch (e) {
-      _errorMessage = 'Failed to load messages: ${e.toString()}';
-    }
+          .snapshots()
+          .listen((snapshot) {
+        _messages =
+            snapshot.docs.map((doc) => Message.fromJson(doc.data())).toList();
+        notifyListeners();
+      });
+    });
   }
 
   Future<void> sendMessage(String text, String senderId) async {
