@@ -15,11 +15,7 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         Provider(create: (_) => ChatService()),
-        ChangeNotifierProvider(
-          create: (context) => ChatProvider(
-            context.read<ChatService>(),
-          ),
-        ),
+        ChangeNotifierProvider(create: (context) => ChatProvider()),
       ],
       child: const MyApp(),
     ),

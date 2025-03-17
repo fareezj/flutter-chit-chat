@@ -1,14 +1,17 @@
+import 'package:chit_chat/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../providers/chat_provider.dart';
 
 class ChatScreen extends StatelessWidget {
+  final AppUser user;
   final String chatRoomId;
   final String otherUserId;
 
   const ChatScreen({
     super.key,
+    required this.user,
     required this.chatRoomId,
     required this.otherUserId,
   });
@@ -17,9 +20,9 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = Provider.of<ChatProvider>(context, listen: false);
     provider.setChatRoom(chatRoomId, otherUserId);
-
+    
     return Scaffold(
-      appBar: AppBar(title: const Text('Chat Room')),
+      appBar: AppBar(title: Text(user.name)),
       body: Column(
         children: [
           Expanded(
@@ -58,9 +61,14 @@ class _MessageInput extends StatefulWidget {
 class _MessageInputState extends State<_MessageInput> {
   final _controller = TextEditingController();
 
+  Future<void> _sendMessage() async {
+    final provider = Provider.of<ChatProvider>(context, listen: false);
+    await provider.sendMessage(_controller.text, widget.chatRoomId);
+    _controller.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<ChatProvider>(context, listen: false);
     final user = FirebaseAuth.instance.currentUser;
 
     return Padding(
@@ -80,8 +88,7 @@ class _MessageInputState extends State<_MessageInput> {
             icon: const Icon(Icons.send),
             onPressed: () async {
               if (_controller.text.isNotEmpty && user != null) {
-                await provider.sendMessage(_controller.text, user.uid);
-                _controller.clear();
+                await _sendMessage();
               }
             },
           ),

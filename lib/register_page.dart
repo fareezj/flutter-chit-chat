@@ -29,6 +29,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       // Save user details to Firestore
       await FirebaseFirestore.instance.collection('users').add({
+        'name': _emailController.text,
         'email': _emailController.text,
         'uid': userCredential.user!.uid,
       });

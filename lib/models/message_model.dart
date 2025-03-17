@@ -22,4 +22,13 @@ class Message {
       timestamp: (data['timestamp'] as Timestamp).toDate(),
     );
   }
+
+  factory Message.fromJson(Map<String, dynamic> json) {
+    return Message(
+      id: json['id'],
+      text: json['text'],
+      senderId: json['senderId'],
+      timestamp: (json['timestamp'] as Timestamp).toDate(),
+    );
+  }
 }

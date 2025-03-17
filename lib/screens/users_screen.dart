@@ -1,4 +1,5 @@
 // lib/screens/users_screen.dart
+import 'package:chit_chat/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -24,15 +25,27 @@ class UsersScreen extends StatelessWidget {
             itemCount: users.length,
             itemBuilder: (context, index) {
               final user = users.elementAt(index);
+              if (user['name'] == null) {
+                return ListTile(
+                  title: Text('Invalid user data',
+                      style: TextStyle(color: Colors.red)),
+                );
+              }
               return ListTile(
-                title: Text(user['email']),
+                leading: CircleAvatar(child: Text(user['name'][0])),
+                title: Text(user['name']),
                 onTap: () {
-                  final chatRoomId = _generateChatId(currentUserId!, user.id);
+                  final currentUser = FirebaseAuth.instance.currentUser;
+                  final chatRoomId = _generateChatId(currentUser!.uid, user.id);
 
                   Navigator.pushNamed(
                     context,
                     RouteGenerator.chatPage,
                     arguments: {
+                      'user': AppUser(
+                          name: user['name'],
+                          email: user['email'],
+                          id: user.id),
                       'chatRoomId': chatRoomId,
                       'otherUserId': user.id,
                     },

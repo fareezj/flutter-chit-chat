@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text,
       );
       // Navigate to home page on success
-      Navigator.pushReplacementNamed(context, RouteGenerator.chatPage);
+      Navigator.pushReplacementNamed(context, RouteGenerator.homePage);
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
@@ -75,6 +75,15 @@ class _LoginPageState extends State<LoginPage> {
                     textStyle: TextStyle(fontSize: 16),
                   ),
                   child: Text('Login'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pushReplacementNamed(
+                      context, RouteGenerator.registerPage),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    textStyle: TextStyle(fontSize: 16),
+                  ),
+                  child: Text('Register'),
                 ),
               ],
               if (_errorMessage != null) ...[
